@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "wCMkQqtIyr4=",
+  "success": true,
+  "projectFilePath": "D:\\PROJECTS-OTHERS\\REACT\\learning-app-solution\\learning-core-api\\learning-core-api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\RAMAN\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.8\\microsoft.aspnetcore.openapi.10.0.8.nupkg.sha512",
+    "C:\\Users\\RAMAN\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512",
+    "C:\\Users\\RAMAN\\.nuget\\packages\\npgsql\\10.0.3\\npgsql.10.0.3.nupkg.sha512",
+    "C:\\Users\\RAMAN\\.nuget\\packages\\npgsql.dependencyinjection\\10.0.3\\npgsql.dependencyinjection.10.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
