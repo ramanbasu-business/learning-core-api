@@ -22,6 +22,18 @@ Layering: `Controllers` → `Services` (`IUserService`/`IRoleService`, business 
 - DTOs in `Models/DTOs` are the only types that cross the controller boundary; entities (`Models/Entitites`) never leak out.
 - Not-found vs. server-error is distinguished via `Result` error metadata (`UserService.NotFoundMetadataKey` / `RoleService.NotFoundMetadataKey`), which controllers translate to `404` vs `500`.
 - `GlobalExceptionHandler` (`Infrastructure/`) + `AddProblemDetails()` provide consistent RFC 7807 error responses for unhandled exceptions.
+- Passwords are hashed with SHA256 (`UserService.HashPassword`) and compared as plain strings — no salting yet (see Roadmap).
+
+## Tech stack
+
+| Concern | Choice |
+|---|---|
+| Runtime | .NET 10 (`net10.0`), ASP.NET Core Web API |
+| ORM | EF Core via `Npgsql.EntityFrameworkCore.PostgreSQL`, snake_case columns via `EFCore.NamingConventions` |
+| Result/error handling | `FluentResults` |
+| API docs | `Microsoft.AspNetCore.OpenApi` (`AddOpenApi()` / `MapOpenApi()`), spec served live, not checked in |
+| Health checks | `AspNetCore.HealthChecks.NpgSql` at `/health` |
+| Database | PostgreSQL 16 (see root `docker-compose.yaml`) |
 
 ## Endpoints
 
@@ -35,15 +47,16 @@ Layering: `Controllers` → `Services` (`IUserService`/`IRoleService`, business 
 | DELETE | `/api/users/{id}` | Delete user |
 | GET/POST/DELETE | `/api/roles`, `/api/roles/{id}` | Role CRUD |
 | POST | `/api/roles/assign` | Assign a role to a user |
-| GET | `/health` | DB-backed health check (`AspNetCore.HealthChecks.NpgSql`) |
+| GET | `/openapi/v1.json` | Live OpenAPI 3.1 spec (Development only) |
+| GET | `/health` | DB-backed health check |
 
 Called exclusively by `learning-server` (the BFF) — never directly by `learning-client`.
 
-## Data
+## Data model
 
-- EF Core (`Npgsql.EntityFrameworkCore.PostgreSQL`) with snake_case naming convention (`EFCore.NamingConventions`)
 - Entities: `User`, `Role`, `UserRole` (join table) — see `Data/AppDbContext.cs`
-- `Database.EnsureCreatedAsync()` runs automatically in `Development` (no migrations yet)
+- Unique indexes on `users.email`, `users.username`, `roles.name`, and `(user_id, role_id)` on `user_roles`
+- `Database.EnsureCreatedAsync()` runs automatically on startup in `Development` (no EF migrations yet — schema changes require a DB reset in dev)
 
 ## Configuration
 
@@ -60,14 +73,25 @@ Called exclusively by `learning-server` (the BFF) — never directly by `learnin
 | `http` | `http://localhost:5002` |
 | `https` | `https://localhost:5003;http://localhost:5002` |
 
-## Local development
+## How to run
+
+Prerequisites: .NET 10 SDK, PostgreSQL reachable at the configured connection string.
 
 ```bash
+# from the repo root, start Postgres (+ pgAdmin) locally
+docker compose up -d postgres pgadmin
+
+# from learning-core-api/
+dotnet restore
 dotnet run --launch-profile http
 ```
 
-Requires PostgreSQL reachable at the configured connection string (see root `docker-compose.yaml` for a local Postgres + pgAdmin container).
+The API listens on `http://localhost:5002`. On first run in `Development`, `EnsureCreatedAsync()` creates the schema if it doesn't exist — there's no seed data, so create a user via `POST /api/users` (or insert one directly) before testing login.
+
+Live OpenAPI spec: `http://localhost:5002/openapi/v1.json` — used by `learning-server`'s `npm run generate:types` to produce a typed TS client.
 
 ## Roadmap
 
 - RabbitMQ publishing for report/PDF generation (not yet implemented — will live here, not in the BFF)
+- EF Core migrations to replace `EnsureCreatedAsync`
+- Salted password hashing (e.g. BCrypt) instead of plain SHA256

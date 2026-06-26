@@ -182,3 +182,6 @@ D:\PROJECTS-OTHERS\REACT\learning-app-solution\learning-core-api\bin\Debug\net10
 D:\PROJECTS-OTHERS\REACT\learning-app-solution\learning-core-api\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 D:\PROJECTS-OTHERS\REACT\learning-app-solution\learning-core-api\bin\Debug\net10.0\runtimes\win\lib\net9.0\System.Windows.Extensions.dll
 D:\PROJECTS-OTHERS\REACT\learning-app-solution\learning-core-api\bin\Debug\net10.0\EFCore.NamingConventions.dll
+D:\PROJECTS-OTHERS\REACT\learning-app-solution\learning-core-api\bin\Debug\net10.0\package-lock.json
+D:\PROJECTS-OTHERS\REACT\learning-app-solution\learning-core-api\bin\Debug\net10.0\package.json
+D:\PROJECTS-OTHERS\REACT\learning-app-solution\learning-core-api\bin\Debug\net10.0\spec\swagger.json
