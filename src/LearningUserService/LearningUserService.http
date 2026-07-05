@@ -1,0 +1,6 @@
+@learning_user_service_HostAddress = https://localhost:5002
+
+GET {{learning_user_service_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

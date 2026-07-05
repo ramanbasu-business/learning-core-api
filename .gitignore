@@ -1,0 +1,7 @@
+bin/
+obj/
+*.user
+.vs/
+node_modules/
+.env
+**/Logs/

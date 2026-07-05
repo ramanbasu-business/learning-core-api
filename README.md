@@ -1,4 +1,4 @@
-# learning-core-api
+# learning-user-service
 
 .NET Core (net10.0) microservice — **single source of truth** for users, roles, and (eventually) reporting. Owns all business logic and is the only service that talks to PostgreSQL.
 
@@ -9,9 +9,9 @@ React (learning-client, :5000)
     │
     ▼
 Node BFF (learning-server, :5001)
-    │  HTTP
+    │  HTTPS
     ▼
-.NET Core API (learning-core-api, :5002 http / :5003 https)   ← this repo
+.NET Core API (learning-user-service, :5002 https only)   ← this repo
     │  EF Core
     ▼
 PostgreSQL (users, roles, user_roles)
@@ -70,8 +70,7 @@ Called exclusively by `learning-server` (the BFF) — never directly by `learnin
 
 | Profile | URL |
 |---|---|
-| `http` | `http://localhost:5002` |
-| `https` | `https://localhost:5003;http://localhost:5002` |
+| `https` | `https://localhost:5002` |
 
 ## How to run
 
@@ -81,17 +80,29 @@ Prerequisites: .NET 10 SDK, PostgreSQL reachable at the configured connection st
 # from the repo root, start Postgres (+ pgAdmin) locally
 docker compose up -d postgres pgadmin
 
-# from learning-core-api/
+# from learning-user-service/
 dotnet restore
-dotnet run --launch-profile http
+dotnet run --launch-profile https
 ```
 
-The API listens on `http://localhost:5002`. On first run in `Development`, `EnsureCreatedAsync()` creates the schema if it doesn't exist — there's no seed data, so create a user via `POST /api/users` (or insert one directly) before testing login.
+The API listens on `https://localhost:5002` (https-only — trust the local dev cert once via `dotnet dev-certs https --trust`). On first run in `Development`, `EnsureCreatedAsync()` creates the schema if it doesn't exist — there's no seed data, so create a user via `POST /api/users` (or insert one directly) before testing login.
 
-Live OpenAPI spec: `http://localhost:5002/openapi/v1.json` — used by `learning-server`'s `npm run generate:types` to produce a typed TS client.
+Live OpenAPI spec: `https://localhost:5002/openapi/v1.json` — used by `learning-server`'s `npm run generate:types` to produce a typed TS client.
 
 ## Roadmap
 
 - RabbitMQ publishing for report/PDF generation (not yet implemented — will live here, not in the BFF)
 - EF Core migrations to replace `EnsureCreatedAsync`
 - Salted password hashing (e.g. BCrypt) instead of plain SHA256
+
+### Logging
+# Installs core Serilog integration for ASP.NET Core
+dotnet add package Serilog.AspNetCore
+
+# Installs the specific sink required to output logs to text files
+dotnet add package Serilog.Sinks.File
+# Required to read Serilog settings out of appsettings.json
+dotnet add package Serilog.Settings.Configuration
+
+# Required to format text lines as structured json objects
+dotnet add package Serilog.Formatting.Compact
