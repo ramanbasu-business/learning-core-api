@@ -85,7 +85,7 @@ dotnet restore
 dotnet run --launch-profile https
 ```
 
-The API listens on `https://localhost:5002` (https-only — trust the local dev cert once via `dotnet dev-certs https --trust`). On first run in `Development`, `EnsureCreatedAsync()` creates the schema if it doesn't exist — there's no seed data, so create a user via `POST /api/users` (or insert one directly) before testing login.
+The API listens on `https://localhost:5002` (https-only — trust the local dev cert once via `dotnet dev-certs https --trust`). Callers running on Node (i.e. `learning-server`) also need to export this cert for Node's own CA store — see the "One-time HTTPS cert setup" section in `learning-server`'s README. On first run in `Development`, `EnsureCreatedAsync()` creates the schema if it doesn't exist — there's no seed data, so create a user via `POST /api/users` (or insert one directly) before testing login.
 
 Live OpenAPI spec: `https://localhost:5002/openapi/v1.json` — used by `learning-server`'s `npm run generate:types` to produce a typed TS client.
 
