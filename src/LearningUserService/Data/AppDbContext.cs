@@ -27,9 +27,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(u => u.Id).HasColumnName("id");
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("now()");
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("now()");
         });
+
+        // Apply a global query filter to exclude soft-deleted users from queries
+        modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
 
         modelBuilder.Entity<Role>(entity =>
         {

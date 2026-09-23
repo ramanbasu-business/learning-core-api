@@ -22,6 +22,7 @@ builder.Host.UseSerilog();
 
 var postgresConnectionString = builder.Configuration.GetConnectionString("Postgres")!;
 
+// Configure Entity Framework Core to use PostgreSQL with the provided connection string
 builder.Services.AddDbContext<AppDbContext>(options =>
     options
     .UseNpgsql(postgresConnectionString)
@@ -45,17 +46,29 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference(); // browsable Swagger-style UI at /scalar/v1
+
+    // Apply migrations automatically in development environment
     await using var scope = app.Services.CreateAsyncScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await dbContext.Database.EnsureCreatedAsync();
+
+    // Apply any pending migrations to the database
+    await dbContext.Database.MigrateAsync();
 }
 
+// Adds middleware to handle exceptions globally and return standardized error responses
 app.UseExceptionHandler();
+
+// Redirects HTTP requests to HTTPS, ensuring secure communication
 app.UseHttpsRedirection();
 
-app.UseSerilogRequestLogging(); // This will log HTTP requests and responses, including status codes and execution times
+// This will log HTTP requests and responses, including status codes and execution times
+app.UseSerilogRequestLogging();
+
+// Adds authorization middleware to the request pipeline, enabling role-based access control
 app.UseAuthorization();
 
+// Maps controller endpoints to the request pipeline,
+// allowing the application to respond to API requests
 app.MapControllers();
 app.MapHealthChecks("/health");
 

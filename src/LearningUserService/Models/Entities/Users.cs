@@ -10,6 +10,9 @@ public class User
     public string? Name { get; set; }
     public string? EntraId { get; set; }
     public bool IsActive { get; set; } = true;
+
+    public bool IsDeleted { get; set; } = false;
+
     public DateTime? LastLogin { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
