@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # learning-user-service
 
 .NET Core (net10.0) microservice — **single source of truth** for users, roles, and (eventually) reporting. Owns all business logic and is the only service that talks to PostgreSQL.
@@ -106,3 +107,7 @@ dotnet add package Serilog.Settings.Configuration
 
 # Required to format text lines as structured json objects
 dotnet add package Serilog.Formatting.Compact
+=======
+# learning-core-api
+learning-core-api (asp.net core web api)
+>>>>>>> origin/main
