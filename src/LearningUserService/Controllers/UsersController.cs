@@ -53,6 +53,8 @@ public class UsersController(IUserService userService, ILogger<UsersController> 
         return Problem(detail: string.Join("; ", result.Errors.Select(e => e.Message)), statusCode: StatusCodes.Status500InternalServerError);
     }
 
+
+
     [HttpPost("auth")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -86,6 +88,8 @@ public class UsersController(IUserService userService, ILogger<UsersController> 
         );
     }
 
+
+
     [HttpPost]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -116,6 +120,35 @@ public class UsersController(IUserService userService, ILogger<UsersController> 
         return Problem(detail: string.Join("; ", result.Errors.Select(e => e.Message)), statusCode: StatusCodes.Status500InternalServerError);
     }
 
+
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateUser(Guid id, UpdateUserRequest request, CancellationToken ct)
+    {
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation("Received request to update user {UserId}", id);
+
+        var result = await userService.UpdateUserAsync(id, request, ct);
+
+        if (result.IsSuccess)
+        {
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Updated user {UserId}", id);
+
+            return Ok(result.Value);
+        }
+
+        if (result.Errors.Any(e => e.Metadata.ContainsKey(UserService.NotFoundMetadataKey)))
+        {
+            return NotFound();
+        }
+
+        return Problem(detail: string.Join("; ", result.Errors.Select(e => e.Message)), statusCode: StatusCodes.Status500InternalServerError);
+    }
+
+
     [HttpGet("{id:guid}/roles")]
     [ProducesResponseType(typeof(IReadOnlyList<RoleDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -140,6 +173,8 @@ public class UsersController(IUserService userService, ILogger<UsersController> 
         var roles = result.Value.Roles.Select(r => new RoleDto(Guid.Empty, r)).ToList();
         return Ok((IReadOnlyList<RoleDto>)roles);
     }
+
+
 
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

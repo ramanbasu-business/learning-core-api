@@ -10,7 +10,7 @@ public class UserRepository(AppDbContext context, ILogger<UserRepository> logger
     {
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug("Fetching all users");
-        
+
         return await context.Users
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
@@ -47,6 +47,16 @@ public class UserRepository(AppDbContext context, ILogger<UserRepository> logger
         await context.SaveChangesAsync(ct);
         return user;
     }
+
+    public async Task UpdateAsync(User user, CancellationToken ct = default)
+    {
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug("Updating user {UserId}", user.Id);
+
+        context.Users.Update(user);
+        await context.SaveChangesAsync(ct);
+    }
+
 
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {

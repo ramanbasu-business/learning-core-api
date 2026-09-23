@@ -29,7 +29,7 @@ public class UserService : IUserService
 
             var users = await userRepository.GetAllAsync(ct);
             var userDtos = users.Select(MapToDto).ToList();
-         
+
             return Result.Ok((IReadOnlyList<UserDto>)userDtos);
         }
         catch (Exception ex)
@@ -45,7 +45,7 @@ public class UserService : IUserService
         {
             if (logger.IsEnabled(LogLevel.Debug))
                 logger.LogDebug("Fetching user {UserId}", id);
-                
+
             var user = await userRepository.GetByIdAsync(id, ct);
             if (user is null)
             {
@@ -72,6 +72,7 @@ public class UserService : IUserService
             {
                 Id = Guid.NewGuid(),
                 Username = request.Username,
+                Name = request.Name,
                 Email = request.Email,
                 PasswordHash = HashPassword(request.Password),
                 CreatedAt = DateTime.UtcNow,
@@ -88,7 +89,48 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<Result<UserDto>> LoginAsync(LoginRequest request, CancellationToken ct = default)
+
+    public async Task<Result<UserDto>> UpdateUserAsync(
+        Guid id,
+        UpdateUserRequest request,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("Updating user {UserId}", id);
+
+            var user = await userRepository.GetByIdAsync(id, ct);
+            if (user is null)
+            {
+                return Result.Fail<UserDto>(new Error($"User {id} not found").WithMetadata(NotFoundMetadataKey, true));
+            }
+
+            if (request.Name is not null)
+            {
+                user.Name = request.Name;
+            }
+
+            if (request.Email is not null)
+            {
+                user.Email = request.Email;
+            }
+
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await userRepository.UpdateAsync(user, ct);
+            return Result.Ok(MapToDto(user));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to update user {UserId}", id);
+            return Result.Fail<UserDto>(new Error("Failed to update user").CausedBy(ex));
+        }
+    }
+
+    public async Task<Result<UserDto>> LoginAsync(
+        LoginRequest request,
+        CancellationToken ct = default)
     {
         try
         {
@@ -122,7 +164,17 @@ public class UserService : IUserService
         {
             if (logger.IsEnabled(LogLevel.Debug))
                 logger.LogDebug("Deleting user {UserId}", id);
-            await userRepository.DeleteAsync(id, ct);
+
+            var user = await userRepository.GetByIdAsync(id, ct);
+            if (user is null)
+            {
+                return Result.Fail<bool>(new Error($"User {id} not found").WithMetadata(NotFoundMetadataKey, true));
+            }
+
+            user.IsDeleted = true;
+            user.UpdatedAt = DateTime.UtcNow;
+            await userRepository.UpdateAsync(user, ct);
+
             return Result.Ok(true);
         }
         catch (Exception ex)
