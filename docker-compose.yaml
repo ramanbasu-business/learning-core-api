@@ -1,0 +1,25 @@
+# Postgres for the EF Core lab. Lab-only credentials, bound to localhost only.
+#   docker compose up -d      start
+#   docker compose down       stop (data is kept)
+#   docker compose down -v    stop and DELETE all lab data
+services:
+  postgres:
+    image: postgres:17
+    container_name: efcorelab-postgres
+    environment:
+      POSTGRES_USER: ${EFLAB_DB_USER:-lab}
+      POSTGRES_PASSWORD: ${EFLAB_DB_PASSWORD:-lab}
+      POSTGRES_DB: postgres
+    ports:
+      - "127.0.0.1:5433:5432"   # 5433 so it never clashes with another local Postgres
+    volumes:
+      - efcorelab-data:/var/lib/postgresql/data
+    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=100"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${EFLAB_DB_USER:-lab} -d postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  efcorelab-data:

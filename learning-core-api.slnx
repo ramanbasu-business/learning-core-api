@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/lessons/">
+    <Project Path="lessons/EfCoreLab.Common/EfCoreLab.Common.csproj" />
+    <Project Path="lessons/00-setup-check/00-setup-check.csproj" />
+    <Project Path="lessons/01-tracking/01-tracking.csproj" />
+    <Project Path="lessons/02-projection/02-projection.csproj" />
+  </Folder>
+</Solution>

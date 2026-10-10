@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="src/LearningUserService/LearningUserService.csproj" />
-  <Project Path="tests/LearningUserService.Tests/LearningUserService.Tests.csproj" />
-</Solution>

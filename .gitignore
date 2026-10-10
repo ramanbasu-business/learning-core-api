@@ -5,3 +5,5 @@ obj/
 node_modules/
 .env
 **/Logs/
+*.log
+.DS_Store
