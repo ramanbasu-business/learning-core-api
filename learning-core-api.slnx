@@ -4,5 +4,18 @@
     <Project Path="lessons/00-setup-check/00-setup-check.csproj" />
     <Project Path="lessons/01-tracking/01-tracking.csproj" />
     <Project Path="lessons/02-projection/02-projection.csproj" />
+    <Project Path="lessons/03-n-plus-one/03-n-plus-one.csproj" />
+    <Project Path="lessons/04-split-query/04-split-query.csproj" />
+    <Project Path="lessons/05-pagination/05-pagination.csproj" />
+    <Project Path="lessons/06-indexes/06-indexes.csproj" />
+    <Project Path="lessons/07-client-vs-server/07-client-vs-server.csproj" />
+    <Project Path="lessons/08-compiled-queries/08-compiled-queries.csproj" />
+    <Project Path="lessons/09-filtered-include/09-filtered-include.csproj" />
+    <Project Path="lessons/10-bulk-writes/10-bulk-writes.csproj" />
+    <Project Path="lessons/11-optimistic-concurrency/11-optimistic-concurrency.csproj" />
+    <Project Path="lessons/12-transactional-outbox/12-transactional-outbox.csproj" />
+    <Project Path="lessons/13-soft-delete/13-soft-delete.csproj" />
+    <Project Path="lessons/14-dbcontext-pooling/14-dbcontext-pooling.csproj" />
+    <Project Path="lessons/15-observability/15-observability.csproj" />
   </Folder>
 </Solution>

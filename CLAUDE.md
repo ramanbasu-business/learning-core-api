@@ -132,10 +132,29 @@ Update this table as work happens. "Owner verified" means the owner ran it and/o
 | 00 | setup-check | done | n/a (complete lesson) | owner ran it successfully |
 | 01 | tracking | done (README, Naive, Fixed stub) | pending | not yet reviewed |
 | 02 | projection | done (README, Naive, DTO, Fixed stub) | pending | not yet reviewed |
-| 03 | n-plus-one | not started | - | NEXT |
+| 03 | n-plus-one | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 04 | split-query | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 05 | pagination | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 06 | indexes | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 07 | client-vs-server | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 08 | compiled-queries | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 09 | filtered-include | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 10 | bulk-writes | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 11 | optimistic-concurrency | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 12 | transactional-outbox | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 13 | soft-delete | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 14 | dbcontext-pooling | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 15 | observability | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 
 ## How to resume
 
 Tell Claude: **"resume"** (or run the `/next-lesson` command). Claude should: read this file; check the Progress table;
 if the owner pasted a `Fixed.cs`, review it first; otherwise create the next lesson following the anatomy above; then update
 the solution file, root README roadmap row and the Progress table, and finish with a short summary of what the owner should do.
+
+## Runner notes added with lessons 03-15
+- `LessonDefinition.FixedSetup` (untimed, DB reset afterwards; lesson 06) and `NaiveIsWrong` (lesson 13).
+- `LessonContext.NewOptions(configure?)` for pooling (14) and interceptors via `NewDb(b => ...)` (15).
+- `Product.Version` is mapped to Postgres `xmin` (lesson 11). UNVERIFIED: if `--reseed` or lesson 11 fails mentioning xmin, fix the mapping in AppDbContext.
+- Lessons 03-15 were written without a compiler: first action next session is `dotnet build` and fix errors the owner pastes.
+- Next after the owner's Fixed.cs reviews: docs/cheatsheet.md, docs/interview-qa.md, results table, CI.

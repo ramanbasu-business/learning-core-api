@@ -47,6 +47,13 @@ public class AppDbContext : DbContext
             e.Property(x => x.Name).HasMaxLength(200);
             e.Property(x => x.Category).HasMaxLength(100);
             e.Property(x => x.UnitPrice).HasPrecision(12, 2);
+            // Optimistic concurrency (lesson 11): Postgres' built-in xmin column changes on every update, so EF adds
+            // "AND xmin = @original" to every UPDATE of a tracked Product. xmin is a system column - no real column is created.
+            e.Property(x => x.Version)
+                .HasColumnName("xmin")
+                .HasColumnType("xid")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsConcurrencyToken();
             e.HasIndex(x => x.Sku).IsUnique();
         });
 

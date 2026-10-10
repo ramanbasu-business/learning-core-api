@@ -10,5 +10,8 @@ public class Product
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; }
 
+    /// <summary>Row version for optimistic concurrency (lesson 11). Maps to Postgres' built-in xmin column, which changes on every update.</summary>
+    public uint Version { get; set; }
+
     public ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 }

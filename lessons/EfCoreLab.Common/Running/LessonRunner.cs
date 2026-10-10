@@ -51,15 +51,15 @@ public static class LessonRunner
             var results = new List<VariantResult>();
             try
             {
-                results.Add(await MeasureAsync("Naive", lesson.Naive, lesson, context, database, options));
-                results.Add(await MeasureAsync("Fixed", lesson.Fixed, lesson, context, database, options));
+                results.Add(await MeasureAsync("Naive", lesson.Naive, null, lesson, context, database, options));
+                results.Add(await MeasureAsync("Fixed", lesson.Fixed, lesson.FixedSetup, lesson, context, database, options));
             }
             finally
             {
-                if (lesson.MutatesData) await database.ResetAsync();
+                if (lesson.MutatesData || lesson.FixedSetup is not null) await database.ResetAsync();
             }
 
-            var consistent = Print(results, options);
+            var consistent = Print(results, options, lesson);
             return consistent ? 0 : 1;
         }
         catch (Exception ex)
@@ -73,6 +73,7 @@ public static class LessonRunner
     private static async Task<VariantResult> MeasureAsync(
         string name,
         Func<LessonContext, Task<LessonOutcome>> run,
+        Func<LessonContext, Task>? setup,
         LessonDefinition lesson,
         LessonContext context,
         DatabaseManager database,
@@ -82,7 +83,11 @@ public static class LessonRunner
         {
             if (lesson.MutatesData)
                 await database.ResetAsync();          // identical starting data for every variant
-            else if (!options.NoWarmup)
+
+            if (setup is not null)
+                await setup(context);                 // not timed (for example: CREATE INDEX)
+
+            if (!lesson.MutatesData && !options.NoWarmup)
                 await run(context);                   // discarded warm-up: JIT, plan cache, connection pool
 
             context.Counter.Reset();
@@ -100,7 +105,7 @@ public static class LessonRunner
     }
 
     /// <returns>false if Fixed returned a different result from Naive.</returns>
-    private static bool Print(List<VariantResult> results, LabOptions options)
+    private static bool Print(List<VariantResult> results, LabOptions options, LessonDefinition lesson)
     {
         var naive = results[0];
         var consistent = true;
@@ -119,6 +124,8 @@ public static class LessonRunner
             else if (naive.Outcome is null) verdict = "-";
             else if (r.Outcome.Rows == naive.Outcome.Rows && r.Outcome.Fingerprint == naive.Outcome.Fingerprint)
                 verdict = "OK - same result as Naive";
+            else if (lesson.NaiveIsWrong)
+                verdict = "DIFFERENT - expected: Naive has the bug";
             else
             {
                 verdict = "WRONG - different result from Naive!";

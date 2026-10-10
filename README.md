@@ -121,19 +121,19 @@ environment variable. The compose file binds to `127.0.0.1:5433` only and uses t
 | 00 | [Setup check](lessons/00-setup-check) - 8 queries vs 1 | done |
 | 01 | [Change tracking and `AsNoTracking()`](lessons/01-tracking) | ready - your turn: `Fixed.cs` |
 | 02 | [Projection with `Select`](lessons/02-projection) | ready - your turn: `Fixed.cs` |
-| 03 | The N+1 problem | planned |
-| 04 | Cartesian explosion and `AsSplitQuery()` | planned |
-| 05 | Pagination: offset vs keyset | planned |
-| 06 | Indexes (verified with `EXPLAIN ANALYZE`) | planned |
-| 07 | Client vs server evaluation | planned |
-| 08 | Compiled queries | planned |
-| 09 | Filtered `Include` and raw SQL | planned |
-| 10 | Bulk writes: `AddRange` vs `ExecuteUpdate` / `ExecuteDelete` | planned |
-| 11 | Optimistic concurrency | planned |
-| 12 | Transactional outbox | planned |
-| 13 | Soft delete with global query filters | planned |
-| 14 | DbContext pooling and `IDbContextFactory` | planned |
-| 15 | Observability: slow-query logging and interceptors | planned |
+| 03 | [The N+1 problem](lessons/03-n-plus-one/README.md) | ready - your turn: `Fixed.cs` |
+| 04 | [Cartesian explosion and `AsSplitQuery()`](lessons/04-split-query/README.md) | ready - your turn: `Fixed.cs` |
+| 05 | [Pagination: offset vs keyset](lessons/05-pagination/README.md) | ready - your turn: `Fixed.cs` |
+| 06 | [Indexes (verified with `EXPLAIN ANALYZE`)](lessons/06-indexes/README.md) | ready - your turn: `Fixed.cs` |
+| 07 | [Client vs server evaluation](lessons/07-client-vs-server/README.md) | ready - your turn: `Fixed.cs` |
+| 08 | [Compiled queries](lessons/08-compiled-queries/README.md) | ready - your turn: `Fixed.cs` |
+| 09 | [Filtered `Include` and raw SQL](lessons/09-filtered-include/README.md) | ready - your turn: `Fixed.cs` |
+| 10 | [Bulk writes: `AddRange` vs `ExecuteUpdate` / `ExecuteDelete`](lessons/10-bulk-writes/README.md) | ready - your turn: `Fixed.cs` |
+| 11 | [Optimistic concurrency](lessons/11-optimistic-concurrency/README.md) | ready - your turn: `Fixed.cs` |
+| 12 | [Transactional outbox](lessons/12-transactional-outbox/README.md) | ready - your turn: `Fixed.cs` |
+| 13 | [Soft delete with global query filters](lessons/13-soft-delete/README.md) | ready - your turn: `Fixed.cs` |
+| 14 | [DbContext pooling and `IDbContextFactory`](lessons/14-dbcontext-pooling/README.md) | ready - your turn: `Fixed.cs` |
+| 15 | [Observability: slow-query logging and interceptors](lessons/15-observability/README.md) | ready - your turn: `Fixed.cs` |
 
 ## Repository layout
 

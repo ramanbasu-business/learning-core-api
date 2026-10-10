@@ -17,16 +17,22 @@ public sealed class LessonContext
     public QueryCounter Counter { get; }
 
     /// <summary>
-    /// A fresh AppDbContext. Create one per variant (or per unit of work), as you would in a real app.
-    /// Pass <paramref name="configure"/> only if a lesson needs to change the EF options.
+    /// The EF Core options (connection, snake_case naming, query counter) used by every lesson context.
+    /// Pass <paramref name="configure"/> only if a lesson needs to change them (for example to add an interceptor).
     /// </summary>
-    public AppDbContext NewDb(Action<DbContextOptionsBuilder>? configure = null)
+    public DbContextOptions<AppDbContext> NewOptions(Action<DbContextOptionsBuilder>? configure = null)
     {
         var builder = new DbContextOptionsBuilder<AppDbContext>();
         builder.UseNpgsql(Options.WorkingConnection);
         builder.UseSnakeCaseNamingConvention();
         builder.AddInterceptors(Counter);
         configure?.Invoke(builder);
-        return new AppDbContext(builder.Options);
+        return builder.Options;
+    }
+
+    /// <summary>A fresh AppDbContext. Create one per variant (or per unit of work), as you would in a real app.</summary>
+    public AppDbContext NewDb(Action<DbContextOptionsBuilder>? configure = null)
+    {
+        return new AppDbContext(NewOptions(configure));
     }
 }

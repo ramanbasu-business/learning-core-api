@@ -18,6 +18,18 @@ public sealed class LessonDefinition
     /// </summary>
     public bool MutatesData { get; init; }
 
+    /// <summary>
+    /// Optional. Runs (not timed) just before the Fixed variant, for example to create an index.
+    /// When it is set, the runner restores the baseline database afterwards.
+    /// </summary>
+    public Func<LessonContext, Task>? FixedSetup { get; init; }
+
+    /// <summary>
+    /// True for lessons where Naive has a bug (it returns wrong data), so Fixed is EXPECTED to return a different,
+    /// correct result. The runner then does not report the difference as a failure.
+    /// </summary>
+    public bool NaiveIsWrong { get; init; }
+
     public required Func<LessonContext, Task<LessonOutcome>> Naive { get; init; }
     public required Func<LessonContext, Task<LessonOutcome>> Fixed { get; init; }
 }
