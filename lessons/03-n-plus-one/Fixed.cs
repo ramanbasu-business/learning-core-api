@@ -27,6 +27,20 @@ public static class Fixed
         //   - Queries: 501 -> 1
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/03-n-plus-one/Fixed.cs and write the single query (see README, 'Your turn').");
+        var summaries = await db.Customers
+        .AsNoTracking()
+        .OrderBy(c => c.Email)
+        .Take(500)
+        .Select(c => new CustomerSummary
+        {
+            Name = c.Name,
+            OrderCount = c.Orders.Count,
+            TotalSpent = c.Orders.Sum(o => o.TotalAmount)
+        })
+        .AsSplitQuery()
+        .ToListAsync();
+
+
+        return Naive.Describe(summaries);
     }
 }
