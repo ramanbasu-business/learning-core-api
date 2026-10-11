@@ -5,13 +5,13 @@ namespace Projection;
 
 public static class Naive
 {
-    public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
+    public static async Task<LessonOutcome> RunAsync(LessonContext lessonContext)
     {
-        await using var db = ctx.NewDb();
+        await using var context = lessonContext.NewDb();
 
         // Step 1: load WHOLE entities, plus the related ones we need a value from.
         // (AsNoTracking is already here - that was lesson 01. The cost that is left is the amount of data.)
-        var orders = await db.Orders
+        var orders = await context.Orders
             .AsNoTracking()
             .Include(o => o.Customer)          // every Customer column, just to read the name
             .Include(o => o.OrderProducts)     // every order line, just to count them

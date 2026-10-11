@@ -7,7 +7,7 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var context = ctx.NewDb();
 
         // ----------------------------------------------------------------------------------
         // YOUR TURN
@@ -30,6 +30,20 @@ public static class Fixed
         //   - run it with --sql and compare the two SELECT lists!
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/02-projection/Fixed.cs and write the Select query (see README, 'Your turn').");
+        var orders = await context.Orders
+            .AsNoTracking()
+            //.Include(o => o.Customer)          // every Customer column, just to read the name
+            .Take(20_000)
+            .Select(o => new OrderListItem
+            {
+                OrderNumber = o.OrderNumber,
+                CustomerName = o.Customer.Name,
+                Status = o.Status,
+                TotalAmount = o.TotalAmount,
+                ItemCount = o.OrderProducts.Count
+            })
+            .ToListAsync();
+
+        return Naive.Describe(orders);
     }
 }

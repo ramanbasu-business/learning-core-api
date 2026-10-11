@@ -11,9 +11,7 @@ public static class Fixed
     {
         await using var db = ctx.NewDb();
 
-        // ----------------------------------------------------------------------------------
-        // YOUR TURN
-        //
+
         // Load the same 50,000 orders as Naive.cs, but tell EF Core NOT to track them.
         // (Open Naive.cs and copy the query. You only need to add one thing to it.)
         //
@@ -27,6 +25,13 @@ public static class Fixed
         //   - the same number of queries (1), but a lower time
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/01-tracking/Fixed.cs and write the query (see README, 'Your turn').");
+        var orders = await db.Orders
+            .AsNoTracking()
+            .Where(o => o.Status == "Delivered")
+            .OrderBy(o => o.OrderNumber)
+            .Take(50_000)
+            .ToListAsync();
+
+        return Naive.Describe(orders, db);
     }
 }
