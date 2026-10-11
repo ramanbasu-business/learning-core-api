@@ -13,10 +13,10 @@ public static class LessonRunner
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        LabOptions options;
+        MyDatabaseOptions options;
         try
         {
-            options = LabOptions.Parse(args);
+            options = MyDatabaseOptions.Parse(args);
         }
         catch (ArgumentException ex)
         {
@@ -26,7 +26,7 @@ public static class LessonRunner
 
         if (options.Help)
         {
-            Console.WriteLine(LabOptions.HelpText);
+            Console.WriteLine(MyDatabaseOptions.HelpText);
             return 0;
         }
 
@@ -77,7 +77,7 @@ public static class LessonRunner
         LessonDefinition lesson,
         LessonContext context,
         DatabaseManager database,
-        LabOptions options)
+        MyDatabaseOptions options)
     {
         try
         {
@@ -105,7 +105,7 @@ public static class LessonRunner
     }
 
     /// <returns>false if Fixed returned a different result from Naive.</returns>
-    private static bool Print(List<VariantResult> results, LabOptions options, LessonDefinition lesson)
+    private static bool Print(List<VariantResult> results, MyDatabaseOptions options, LessonDefinition lesson)
     {
         var naive = results[0];
         var consistent = true;

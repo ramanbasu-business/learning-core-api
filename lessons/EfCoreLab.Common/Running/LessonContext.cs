@@ -7,13 +7,13 @@ namespace EfCoreLab.Common.Running;
 /// <summary>Handed to Naive/Fixed. Creates DbContexts that point at the lab database and are query-counted.</summary>
 public sealed class LessonContext
 {
-    internal LessonContext(LabOptions options, QueryCounter counter)
+    internal LessonContext(MyDatabaseOptions options, QueryCounter counter)
     {
         Options = options;
         Counter = counter;
     }
 
-    public LabOptions Options { get; }
+    public MyDatabaseOptions Options { get; }
     public QueryCounter Counter { get; }
 
     /// <summary>

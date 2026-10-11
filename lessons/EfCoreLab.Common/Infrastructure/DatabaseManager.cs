@@ -16,9 +16,9 @@ namespace EfCoreLab.Common.Infrastructure;
 /// </summary>
 public class DatabaseManager
 {
-    private readonly LabOptions _options;
+    private readonly MyDatabaseOptions _options;
 
-    public DatabaseManager(LabOptions options)
+    public DatabaseManager(MyDatabaseOptions options)
     {
         _options = options;
     }

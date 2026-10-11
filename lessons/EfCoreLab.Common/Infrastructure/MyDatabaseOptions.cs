@@ -6,7 +6,7 @@ namespace EfCoreLab.Common.Infrastructure;
 /// Settings for a lesson run: which database to use, and the flags typed after `--`
 /// (for example `dotnet run -- --sql`).
 /// </summary>
-public class LabOptions
+public class MyDatabaseOptions
 {
     // Matches docker-compose.yaml. Override with the EFLAB_CONNECTION environment variable.
     private const string DefaultConnection =
@@ -28,12 +28,12 @@ public class LabOptions
     public bool NoWarmup { get; private set; }      // --no-warmup
     public bool Help { get; private set; }          // --help
 
-    public static LabOptions Parse(string[] args)
+    public static MyDatabaseOptions Parse(string[] args)
     {
         var connection = Environment.GetEnvironmentVariable("EFLAB_CONNECTION") ?? DefaultConnection;
         var databaseName = new NpgsqlConnectionStringBuilder(connection).Database ?? "efcorelab";
 
-        var options = new LabOptions
+        var options = new MyDatabaseOptions
         {
             WorkingName = databaseName,
             BaselineName = databaseName + "_baseline",
