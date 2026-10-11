@@ -33,7 +33,8 @@ public static class Fixed
         var orders = await context.Orders
             .AsNoTracking()
             //.Include(o => o.Customer)          // every Customer column, just to read the name
-            .Take(20_000)
+            .OrderBy(o => o.OrderNumber)
+            .Take(20000)
             .Select(o => new OrderListItem
             {
                 OrderNumber = o.OrderNumber,
