@@ -132,8 +132,8 @@ Update this table as work happens. "Owner verified" means the owner ran it and/o
 | 00 | setup-check | done | n/a (complete lesson) | owner ran it successfully |
 | 01 | tracking | done (README, Naive, Fixed stub) | pending | not yet reviewed |
 | 02 | projection | done (README, Naive, DTO, Fixed stub) | pending | not yet reviewed |
-| 03 | n-plus-one | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
-| 04 | split-query | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 03 | n-plus-one | done | done, reviewed | 501 -> 1 query (correlated COUNT/SUM subqueries); owner also tried a GroupBy-on-customers variant (correct but slower; grouping orders is the real alternative) |
+| 04 | split-query | done | done, reviewed | AsSplitQuery: 1 -> 3 queries, ~2x faster; small fan-out (~3 lines x 2 notes per order) so gain is modest |
 | 05 | pagination | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 | 06 | indexes | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 | 07 | client-vs-server | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |

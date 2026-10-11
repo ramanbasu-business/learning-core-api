@@ -28,6 +28,27 @@ public static class Fixed
         //   - run with --sql to see the three statements
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/04-split-query/Fixed.cs and write the query (see README, 'Your turn').");
+        /**
+        Consistency: the 3 queries run at different moments. If a row is written between them, the results can disagree.
+        To avoid that, wrap them in a transaction (Repeatable Read or Snapshot isolation).
+
+        Round trips: 3 trips instead of 1. On a slow network, or when the collections are small, single-query mode can win.
+
+        Setting it ALWAYS: UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery) in the options turns it on everywhere.
+        Then .AsSingleQuery() switches it back off for one query.
+
+        Where to put the call: AsSplitQuery() can go anywhere in the chain before ToListAsync().
+        **/
+
+        var orders = await db.Orders
+                    .AsNoTracking()
+                    .Include(o => o.OrderProducts)
+                    .Include(o => o.OrderNotes)
+                    .OrderBy(o => o.OrderNumber)
+                    .Take(5_000)
+                    .AsSplitQuery()
+                    .ToListAsync();
+
+        return Naive.Describe(orders);
     }
 }
