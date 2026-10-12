@@ -7,7 +7,7 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDbContext();
+        await using var context = ctx.NewDbContext();
 
         // ----------------------------------------------------------------------------------
         // YOUR TURN
@@ -28,6 +28,11 @@ public static class Fixed
         //   - Queries: 1 -> 1, but far less data transferred and a lower time
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/07-client-vs-server/Fixed.cs and write the filtered query (see README, 'Your turn').");
+        var large = await context.Orders
+            .AsNoTracking()
+            .Where(o => o.TotalAmount >= 3000m && o.Status == "Delivered")
+            .ToListAsync();
+
+        return Naive.Describe(large);
     }
 }

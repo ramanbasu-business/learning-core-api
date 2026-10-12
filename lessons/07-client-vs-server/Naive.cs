@@ -15,10 +15,10 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDbContext();
+        await using var context = ctx.NewDbContext();
 
         // Step 1: download EVERY order (200,000 rows) into memory...
-        var allOrders = await db.Orders.AsNoTracking().ToListAsync();
+        var allOrders = await context.Orders.AsNoTracking().ToListAsync();
 
         // Step 2: ...and filter them here, in C#, with our method.
         var large = allOrders.Where(IsLargeDeliveredOrder).ToList();
