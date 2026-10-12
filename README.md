@@ -1,108 +1,150 @@
-# learning-user-service
+# learning-core-api
 
-.NET Core (net10.0) microservice — **single source of truth** for users, roles, and (eventually) reporting. Owns all business logic and is the only service that talks to PostgreSQL.
+**A hands-on EF Core performance course in runnable code** (.NET 10 + PostgreSQL in Docker).
 
-## Architecture
+Every lesson takes one real-world problem, shows the **slow way** (`Naive.cs`) next to the **fast way**
+(`Fixed.cs`), and proves the difference with numbers: how many queries were sent, how long it took, and
+that both versions return the same result. Use it as a tutorial, a quick reference, or interview prep.
 
-```
-React (learning-client, :5000)
-    │
-    ▼
-Node BFF (learning-server, :5001)
-    │  HTTPS
-    ▼
-.NET Core API (learning-user-service, :5002 https only)   ← this repo
-    │  EF Core
-    ▼
-PostgreSQL (users, roles, user_roles)
-```
+> Techniques covered include `AsNoTracking()`, `AsSplitQuery()`, projections, N+1 fixes, keyset pagination,
+> indexes, compiled queries, bulk writes, optimistic concurrency, the transactional outbox and more
+> (see the roadmap below).
 
-Layering: `Controllers` → `Services` (`IUserService`/`IRoleService`, business logic, return `FluentResults.Result<T>`) → `Repositories` (`IUserRepository`/`IRoleRepository`, EF Core data access) → `AppDbContext`.
+## Quick start
 
-- DTOs in `Models/DTOs` are the only types that cross the controller boundary; entities (`Models/Entitites`) never leak out.
-- Not-found vs. server-error is distinguished via `Result` error metadata (`UserService.NotFoundMetadataKey` / `RoleService.NotFoundMetadataKey`), which controllers translate to `404` vs `500`.
-- `GlobalExceptionHandler` (`Infrastructure/`) + `AddProblemDetails()` provide consistent RFC 7807 error responses for unhandled exceptions.
-- Passwords are hashed with SHA256 (`UserService.HashPassword`) and compared as plain strings — no salting yet (see Roadmap).
-
-## Tech stack
-
-| Concern | Choice |
-|---|---|
-| Runtime | .NET 10 (`net10.0`), ASP.NET Core Web API |
-| ORM | EF Core via `Npgsql.EntityFrameworkCore.PostgreSQL`, snake_case columns via `EFCore.NamingConventions` |
-| Result/error handling | `FluentResults` |
-| API docs | `Microsoft.AspNetCore.OpenApi` (`AddOpenApi()` / `MapOpenApi()`), spec served live, not checked in |
-| Health checks | `AspNetCore.HealthChecks.NpgSql` at `/health` |
-| Database | PostgreSQL 16 (see root `docker-compose.yaml`) |
-
-## Endpoints
-
-| Method | Route | Purpose |
-|---|---|---|
-| GET | `/api/users` | List users with roles |
-| GET | `/api/users/{id}` | Get user by id |
-| GET | `/api/users/{id}/roles` | Get a user's roles |
-| POST | `/api/users` | Create user |
-| POST | `/api/users/auth` | Verify username/password, return `UserDto` |
-| DELETE | `/api/users/{id}` | Delete user |
-| GET/POST/DELETE | `/api/roles`, `/api/roles/{id}` | Role CRUD |
-| POST | `/api/roles/assign` | Assign a role to a user |
-| GET | `/openapi/v1.json` | Live OpenAPI 3.1 spec (Development only) |
-| GET | `/health` | DB-backed health check |
-
-Called exclusively by `learning-server` (the BFF) — never directly by `learning-client`.
-
-## Data model
-
-- Entities: `User`, `Role`, `UserRole` (join table) — see `Data/AppDbContext.cs`
-- Unique indexes on `users.email`, `users.username`, `roles.name`, and `(user_id, role_id)` on `user_roles`
-- `Database.EnsureCreatedAsync()` runs automatically on startup in `Development` (no EF migrations yet — schema changes require a DB reset in dev)
-
-## Configuration
-
-`appsettings.Development.json` / `appsettings.json`:
-
-```json
-"ConnectionStrings": { "Postgres": "Host=localhost;Port=5432;Username=admin;Password=111;Database=learningdb" }
-```
-
-`Properties/launchSettings.json` ports:
-
-| Profile | URL |
-|---|---|
-| `https` | `https://localhost:5002` |
-
-## How to run
-
-Prerequisites: .NET 10 SDK, PostgreSQL reachable at the configured connection string.
+Requirements: [.NET 10 SDK](https://dotnet.microsoft.com/download) and Docker.
 
 ```bash
-# from the repo root, start Postgres (+ pgAdmin) locally
-docker compose up -d postgres pgadmin
-
-# from learning-user-service/
-dotnet restore
-dotnet run --launch-profile https
+docker compose up -d            # start Postgres (once per session)
+cd lessons/00-setup-check
+dotnet run                      # first run builds and seeds the database (a minute or two, once)
 ```
 
-The API listens on `https://localhost:5002` (https-only — trust the local dev cert once via `dotnet dev-certs https --trust`). Callers running on Node (i.e. `learning-server`) also need to export this cert for Node's own CA store — see the "One-time HTTPS cert setup" section in `learning-server`'s README. On first run in `Development`, `EnsureCreatedAsync()` creates the schema if it doesn't exist — there's no seed data, so create a user via `POST /api/users` (or insert one directly) before testing login.
+You should see a small table comparing **Naive** and **Fixed**. If you do, everything works.
 
-Live OpenAPI spec: `https://localhost:5002/openapi/v1.json` — used by `learning-server`'s `npm run generate:types` to produce a typed TS client.
+## How a lesson works
+
+```
+lessons/03-n-plus-one/
+├── README.md     the problem, the concept, what to look for, interview Q&A
+├── Naive.cs      the version most people write first
+├── Fixed.cs      the optimized version  (in guided mode: a TODO for you to implement)
+└── Program.cs    three lines that hand Naive and Fixed to the shared runner
+```
+
+```bash
+cd lessons/03-n-plus-one
+dotnet run                  # runs Naive, then Fixed, prints queries / time / rows
+dotnet run -- --sql         # ...and shows the SQL EF generated
+```
+
+Example of the output format (numbers will differ on your machine):
+
+```
+Variant   Queries    Time (ms)         Rows  Result
+Naive           8         41.2    1,234,567  baseline
+Fixed           1          5.3    1,234,567  OK - same result as Naive
+
+Queries: 8 -> 1    Time: 41.2 ms -> 5.3 ms (7.8x faster)
+```
+
+The runner also **checks that Fixed returns the same result as Naive**, so a "fast" version that quietly
+returns the wrong data is reported as `WRONG`, not as a win.
+
+## Runner options
+
+Put them after `--`:
+
+| Option | What it does |
+|---|---|
+| `--sql` | Also print the SQL each variant sent to the database |
+| `--reset` | Restore the working database from the baseline, then exit |
+| `--reseed` | Delete and rebuild the baseline from scratch, then exit |
+| `--small` | With `--reseed`: build the small dataset (20k orders) instead of the large one (200k) |
+| `--no-warmup` | Skip the discarded warm-up run (timings then include JIT and cold caches) |
+| `--help` | Show the options |
+
+## The data
+
+All lessons share one schema and one deterministic dataset, so results are comparable between lessons
+and between machines.
+
+```mermaid
+erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    USER ||--o{ ORDER : "is sales rep of"
+    ORDER ||--|{ ORDER_PRODUCT : contains
+    PRODUCT ||--o{ ORDER_PRODUCT : "appears in"
+    ORDER ||--o{ ORDER_NOTE : has
+    USER ||--o{ ORDER_NOTE : writes
+    USER ||--o{ USER_ROLE : has
+    ROLE ||--o{ USER_ROLE : grants
+```
+
+| Table | Rows (large) |
+|---|---|
+| customers | 10,000 |
+| products | 1,000 |
+| orders | 200,000 |
+| order_products (lines) | ~600,000 |
+| order_notes | ~400,000 |
+| users / roles / user_roles | 50 / 4 / 50 |
+
+Ids are time-ordered GUIDs (`Guid.CreateVersion7()`). `User` has a global soft-delete query filter, `audit_logs` and
+`message_queue` tables exist for the observability and outbox lessons.
+
+### Resetting data
+
+Two databases live in the Docker Postgres:
+
+- `efcorelab_baseline` - the golden copy, built once (schema + seed + `VACUUM ANALYZE`), never touched by lessons.
+- `efcorelab` - the working copy lessons run against.
+
+A reset drops the working database and copies the baseline (`CREATE DATABASE ... TEMPLATE ...`), which takes
+seconds even for 200k orders. If a first-time build is interrupted (Ctrl+C), run `--reseed` once to start clean. Lessons that change data or schema are reset automatically before each variant
+and afterwards, so you can run any lesson any number of times.
+
+```bash
+dotnet run -- --reset           # back to the baseline now
+dotnet run -- --reseed          # rebuild the baseline (e.g. after changing the seeder)
+dotnet run -- --reseed --small  # ...with the small dataset (20k orders) for quick experiments
+docker compose down -v          # nuclear option: delete everything, including the volume
+```
+
+Connection settings: the defaults match `docker-compose.yaml`; override with the `EFLAB_CONNECTION`
+environment variable. The compose file binds to `127.0.0.1:5433` only and uses throwaway lab credentials.
 
 ## Roadmap
 
-- RabbitMQ publishing for report/PDF generation (not yet implemented — will live here, not in the BFF)
-- EF Core migrations to replace `EnsureCreatedAsync`
-- Salted password hashing (e.g. BCrypt) instead of plain SHA256
+| # | Lesson | Status |
+|---|---|---|
+| 00 | [Setup check](lessons/00-setup-check) - 8 queries vs 1 | done |
+| 01 | [Change tracking and `AsNoTracking()`](lessons/01-tracking) | ready - your turn: `Fixed.cs` |
+| 02 | [Projection with `Select`](lessons/02-projection) | ready - your turn: `Fixed.cs` |
+| 03 | [The N+1 problem](lessons/03-n-plus-one/README.md) | ready - your turn: `Fixed.cs` |
+| 04 | [Cartesian explosion and `AsSplitQuery()`](lessons/04-split-query/README.md) | ready - your turn: `Fixed.cs` |
+| 05 | [Pagination: offset vs keyset](lessons/05-pagination/README.md) | ready - your turn: `Fixed.cs` |
+| 06 | [Indexes (verified with `EXPLAIN ANALYZE`)](lessons/06-indexes/README.md) | ready - your turn: `Fixed.cs` |
+| 07 | [Client vs server evaluation](lessons/07-client-vs-server/README.md) | ready - your turn: `Fixed.cs` |
+| 08 | [Compiled queries](lessons/08-compiled-queries/README.md) | ready - your turn: `Fixed.cs` |
+| 09 | [Filtered `Include` and raw SQL](lessons/09-filtered-include/README.md) | ready - your turn: `Fixed.cs` |
+| 10 | [Bulk writes: `AddRange` vs `ExecuteUpdate` / `ExecuteDelete`](lessons/10-bulk-writes/README.md) | ready - your turn: `Fixed.cs` |
+| 11 | [Optimistic concurrency](lessons/11-optimistic-concurrency/README.md) | ready - your turn: `Fixed.cs` |
+| 12 | [Transactional outbox](lessons/12-transactional-outbox/README.md) | ready - your turn: `Fixed.cs` |
+| 13 | [Soft delete with global query filters](lessons/13-soft-delete/README.md) | ready - your turn: `Fixed.cs` |
+| 14 | [DbContext pooling and `IDbContextFactory`](lessons/14-dbcontext-pooling/README.md) | ready - your turn: `Fixed.cs` |
+| 15 | [Observability: slow-query logging and interceptors](lessons/15-observability/README.md) | ready - your turn: `Fixed.cs` |
 
-### Logging
-# Installs core Serilog integration for ASP.NET Core
-dotnet add package Serilog.AspNetCore
+## Repository layout
 
-# Installs the specific sink required to output logs to text files
-dotnet add package Serilog.Sinks.File
-# Required to read Serilog settings out of appsettings.json
-dotnet add package Serilog.Settings.Configuration
+```
+learning-core-api/
+├── docker-compose.yaml            Postgres for the lab (port 5433)
+├── learning-core-api.slnx
+└── lessons/
+    ├── Directory.Build.props      shared settings; every lesson references EfCoreLab.Common
+    ├── EfCoreLab.Common/          entities, DbContext, seeder, database reset, lesson runner
+    └── 00-setup-check/ ...        one small console project per lesson
+```
 
-# Required to format text lines as structured json objects
-dotnet add package Serilog.Formatting.Compact
+The original API this repository used to contain is preserved in git under the tag `api-final`.

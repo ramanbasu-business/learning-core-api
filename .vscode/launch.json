@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "01-tracking",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/lessons/01-tracking/01-tracking.csproj"
+        },
+        {
+            "name": "00-setup-check",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/lessons/00-setup-check/00-setup-check.csproj"
+        },
+        {
+            "name": "00-setup-check (--sql)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-00",
+            "program": "${workspaceFolder}/lessons/00-setup-check/bin/Debug/net10.0/00-setup-check.dll",
+            "args": [
+                "--sql"
+            ],
+            "cwd": "${workspaceFolder}/lessons/00-setup-check",
+            "console": "integratedTerminal"
+        }
+    ]
+}
