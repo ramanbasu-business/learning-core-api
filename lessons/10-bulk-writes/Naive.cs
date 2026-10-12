@@ -9,7 +9,7 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         // Step 1: load every matching order into memory (tracked!)
         var orders = await db.Orders

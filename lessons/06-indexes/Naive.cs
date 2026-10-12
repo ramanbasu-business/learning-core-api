@@ -13,9 +13,9 @@ public static class Naive
     /// <summary>The query under test. Fixed.cs runs exactly the same query - only the database around it differs.</summary>
     public static async Task<LessonOutcome> QueryAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var context = ctx.NewDbContext();
 
-        var numbers = await db.Orders
+        var numbers = await context.Orders
             .AsNoTracking()
             .Where(o => o.Status == "Shipped" && o.OrderDate >= Since)
             .OrderByDescending(o => o.OrderDate)

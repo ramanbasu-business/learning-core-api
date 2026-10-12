@@ -15,7 +15,7 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         // Step 1: download EVERY order (200,000 rows) into memory...
         var allOrders = await db.Orders.AsNoTracking().ToListAsync();

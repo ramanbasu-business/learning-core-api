@@ -7,7 +7,7 @@ public static class Naive
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         // One round trip per table: 8 queries.
         var customers = await db.Customers.CountAsync();

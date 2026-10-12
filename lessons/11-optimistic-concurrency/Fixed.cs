@@ -7,8 +7,8 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var dbA = ctx.NewDb();
-        await using var dbB = ctx.NewDb();
+        await using var dbA = ctx.NewDbContext();
+        await using var dbB = ctx.NewDbContext();
 
         // ----------------------------------------------------------------------------------
         // YOUR TURN

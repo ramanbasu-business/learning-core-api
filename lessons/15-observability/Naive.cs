@@ -10,7 +10,7 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
         var result = await RunWorkloadAsync(db);
 
         // Total time is all you get: you can't tell WHICH of the three queries is the slow one.

@@ -7,7 +7,7 @@ public static class Naive
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext lessonContext)
     {
-        await using var context = lessonContext.NewDb();
+        await using var context = lessonContext.NewDbContext();
 
         // Step 1: load WHOLE entities, plus the related ones we need a value from.
         // (AsNoTracking is already here - that was lesson 01. The cost that is left is the amount of data.)

@@ -8,7 +8,7 @@ public static class Naive
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         // Two collections in ONE query (EF's default, "single query" mode).
         // The database must join orders x order_products x order_notes, so for every order it returns

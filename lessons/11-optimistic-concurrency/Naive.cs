@@ -9,8 +9,8 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var dbA = ctx.NewDb();
-        await using var dbB = ctx.NewDb();
+        await using var dbA = ctx.NewDbContext();
+        await using var dbB = ctx.NewDbContext();
 
         // Both users open the product page and see the same price.
         var a = await dbA.Products.FirstAsync(p => p.Sku == Sku);
@@ -26,7 +26,7 @@ public static class Naive
         await dbB.Products.Where(p => p.Id == b.Id)
             .ExecuteUpdateAsync(s => s.SetProperty(p => p.UnitPrice, newPriceB));
 
-        await using var check = ctx.NewDb();
+        await using var check = ctx.NewDbContext();
         var final = await check.Products.AsNoTracking().Where(p => p.Sku == Sku).Select(p => p.UnitPrice).FirstAsync();
         return Describe(start, final, conflicts: 0);
     }

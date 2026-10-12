@@ -8,7 +8,7 @@ public static class Naive
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         // Step 1: include ALL of each customer's orders (about 20 each)...
         var customers = await db.Customers

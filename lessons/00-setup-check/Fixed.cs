@@ -20,7 +20,7 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         // One round trip for everything. Raw SQL does not apply the global query filter,
         // so the soft-delete condition on users is written out by hand.

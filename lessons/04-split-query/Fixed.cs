@@ -7,7 +7,7 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var context = ctx.NewDbContext();
 
         // ----------------------------------------------------------------------------------
         // YOUR TURN
@@ -40,7 +40,7 @@ public static class Fixed
         Where to put the call: AsSplitQuery() can go anywhere in the chain before ToListAsync().
         **/
 
-        var orders = await db.Orders
+        var orders = await context.Orders
                     .AsNoTracking()
                     .Include(o => o.OrderProducts)
                     .Include(o => o.OrderNotes)

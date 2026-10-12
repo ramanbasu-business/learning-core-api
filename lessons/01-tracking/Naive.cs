@@ -9,7 +9,7 @@ public static class Naive
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         // A perfectly normal query. By default EF Core TRACKS every Order it returns:
         // it remembers each one in the change tracker and keeps a copy of its original values,

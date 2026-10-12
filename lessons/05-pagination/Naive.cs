@@ -15,11 +15,11 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var context = ctx.NewDbContext();
 
         // Offset pagination: "skip the first 190,000 rows, then give me 50".
         // The database still has to walk past all 190,000 rows before it can return the first one we want.
-        var numbers = await db.Orders
+        var numbers = await context.Orders
             .AsNoTracking()
             .OrderBy(o => o.OrderNumber)
             .Skip(190_000)

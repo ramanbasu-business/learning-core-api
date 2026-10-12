@@ -17,7 +17,7 @@ public static class Naive
 
         for (var i = 0; i < OrderCount; i++)
         {
-            await using var db = ctx.NewDb();
+            await using var db = ctx.NewDbContext();
             var order = NewOrder(i, customerId);
             db.Orders.Add(order);
 
@@ -43,7 +43,7 @@ public static class Naive
 
     public static async Task<Guid> FirstCustomerIdAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
         return await db.Customers.AsNoTracking().OrderBy(c => c.Email).Select(c => c.Id).FirstAsync();
     }
 

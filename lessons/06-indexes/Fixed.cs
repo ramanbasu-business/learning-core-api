@@ -22,13 +22,43 @@ public static class Fixed
     /// </summary>
     public static async Task SetupAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var context = ctx.NewDbContext();
 
         // await db.Database.ExecuteSqlRawAsync("CREATE INDEX ... ON orders (...)");
         // await db.Database.ExecuteSqlRawAsync("ANALYZE orders");
 
-        await Task.CompletedTask;
-        throw new NotImplementedException("TODO - open lessons/06-indexes/Fixed.cs and write the CREATE INDEX statement (see README, 'Your turn').");
+        var isIndexExists = context.Database.SqlQueryRaw<bool>(
+            @"SELECT EXISTS (
+                SELECT 1 FROM pg_indexes WHERE tablename='orders'
+                    AND indexname='idx_status_orderdate_ordernumber')
+            AS ""Value"""
+        ).SingleAsync();
+
+        Console.WriteLine($"Index exists: {await isIndexExists}");
+
+
+        await context.Database.ExecuteSqlRawAsync(
+            "DROP INDEX IF EXISTS idx_status_orderdate_ordernumber"
+        );
+        await context.Database.ExecuteSqlRawAsync(
+            "CREATE INDEX idx_status_orderdate_ordernumber ON orders(status, order_date DESC, order_number)"
+        );
+
+        // After you create an index, refreshing the table statistics helps the planner choose good plans. The stub asks for it, and it's a good habit after big schema or data changes.
+        await context.Database.ExecuteSqlRawAsync("ANALYZE orders");
+
+
+        var numbers = await context.Orders
+            .AsNoTracking()
+            .Where(o => o.Status == "Shipped" && o.OrderDate >= Naive.Since)
+            .OrderByDescending(o => o.OrderDate)
+            .ThenBy(o => o.OrderNumber)
+            .Take(100)
+            .Select(o => o.OrderNumber)
+            .ToListAsync();
+
+        //await Task.CompletedTask;
+
     }
 
     // The query itself is already written: it is the same as Naive's. The lesson is the index, not the LINQ.

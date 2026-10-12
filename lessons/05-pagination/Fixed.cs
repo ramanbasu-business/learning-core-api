@@ -7,7 +7,7 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var context = ctx.NewDbContext();
 
         // ----------------------------------------------------------------------------------
         // YOUR TURN
@@ -29,6 +29,14 @@ public static class Fixed
         //   - Queries: 1 -> 1, but a much lower time
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/05-pagination/Fixed.cs and write the keyset query (see README, 'Your turn').");
+        var numbers = await context.Orders
+            .AsNoTracking()
+            .OrderBy(o => o.OrderNumber)
+            .Where(o => o.OrderNumber.CompareTo(Naive.PreviousPageLastOrderNumber) > 0)
+            .Take(Naive.PageSize)
+            .Select(o => o.OrderNumber)
+            .ToListAsync();
+
+        return Naive.Describe(numbers);
     }
 }

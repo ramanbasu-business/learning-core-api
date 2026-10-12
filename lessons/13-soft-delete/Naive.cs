@@ -9,7 +9,7 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         // Navigating to n.Author applies User's global filter (IsDeleted = false) as an INNER JOIN.
         // Notes whose author was soft-deleted vanish from the result without any error.

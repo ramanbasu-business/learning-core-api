@@ -135,7 +135,7 @@ Update this table as work happens. "Owner verified" means the owner ran it and/o
 | 03 | n-plus-one | done | done, reviewed | 501 -> 1 query (correlated COUNT/SUM subqueries); owner also tried a GroupBy-on-customers variant (correct but slower; grouping orders is the real alternative) |
 | 04 | split-query | done | done, reviewed | AsSplitQuery: 1 -> 3 queries, ~2x faster; small fan-out (~3 lines x 2 notes per order) so gain is modest |
 | 05 | pagination | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
-| 06 | indexes | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 06 | indexes | done | done, reviewed | index (status, order_date DESC, order_number) + ANALYZE; DESC matches the sort exactly (no Incremental Sort); covering -> index-only scan possible. Timings not yet recorded |
 | 07 | client-vs-server | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 | 08 | compiled-queries | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 | 09 | filtered-include | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |

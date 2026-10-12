@@ -23,15 +23,17 @@ public sealed class LessonContext
     public DbContextOptions<AppDbContext> NewOptions(Action<DbContextOptionsBuilder>? configure = null)
     {
         var builder = new DbContextOptionsBuilder<AppDbContext>();
+
         builder.UseNpgsql(Options.WorkingConnection);
         builder.UseSnakeCaseNamingConvention();
         builder.AddInterceptors(Counter);
         configure?.Invoke(builder);
+
         return builder.Options;
     }
 
     /// <summary>A fresh AppDbContext. Create one per variant (or per unit of work), as you would in a real app.</summary>
-    public AppDbContext NewDb(Action<DbContextOptionsBuilder>? configure = null)
+    public AppDbContext NewDbContext(Action<DbContextOptionsBuilder>? configure = null)
     {
         return new AppDbContext(NewOptions(configure));
     }

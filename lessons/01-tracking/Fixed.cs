@@ -9,7 +9,7 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
 
         // Load the same 50,000 orders as Naive.cs, but tell EF Core NOT to track them.

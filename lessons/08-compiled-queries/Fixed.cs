@@ -32,7 +32,7 @@ public static class Fixed
         if (GetOrderByNumber is null)
             throw new NotImplementedException("TODO - open lessons/08-compiled-queries/Fixed.cs and compile the query (see README, 'Your turn').");
 
-        await using var db = ctx.NewDb();
+        await using var db = ctx.NewDbContext();
 
         var found = 0;
         var total = 0m;
