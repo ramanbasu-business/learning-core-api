@@ -12,7 +12,7 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDbContext();
+        await using var context = ctx.NewDbContext();
 
         var found = 0;
         var total = 0m;
@@ -23,7 +23,7 @@ public static class Naive
 
             // The LINQ expression is processed on EVERY call: EF looks it up in its query cache
             // (it still has to walk the expression tree to build the cache key) before it runs the SQL.
-            var order = await db.Orders
+            var order = await context.Orders
                 .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.OrderNumber == number);
 

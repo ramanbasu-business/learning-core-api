@@ -9,8 +9,11 @@ dotnet run
 
 ## The problem
 
-Every time EF Core runs a LINQ query it must (1) take the expression tree, (2) work out a cache key for it, (3) find the already
-translated SQL in its **query cache** (translating it the first time only), and then (4) execute. EF caches the expensive part
+Every time EF Core runs a LINQ query it must
+(1) take the expression tree,
+(2) work out a cache key for it,
+(3) find the already translated SQL in its **query cache** (translating it the first time only), and then
+(4) execute. EF caches the expensive part -
 (LINQ -> SQL), so repeated queries are *already* much cheaper than the first. But steps 1-3 still happen on every call.
 
 On a hot path with a very cheap query, that fixed per-call work can become a measurable share of the total CPU.
@@ -22,10 +25,10 @@ tree walking and cache lookup:
 
 ```csharp
 static readonly Func<AppDbContext, string, Task<Order?>> GetByNumber =
-    EF.CompileAsyncQuery((AppDbContext db, string number) =>
-        db.Orders.AsNoTracking().FirstOrDefault(o => o.OrderNumber == number));
+    EF.CompileAsyncQuery((AppDbContext context, string number) =>
+        context.Orders.AsNoTracking().FirstOrDefault(o => o.OrderNumber == number));
 
-var order = await GetByNumber(db, "ORD-0000042");
+var order = await GetByNumber(context, "ORD-0000042");
 ```
 
 ## What the files do
