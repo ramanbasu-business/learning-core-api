@@ -7,7 +7,7 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDbContext();
+        await using var context = ctx.NewDbContext();
 
         // ----------------------------------------------------------------------------------
         // YOUR TURN
@@ -30,6 +30,18 @@ public static class Fixed
         //   - Queries: 1 -> 1, but fewer rows come back from the database (~3,000 orders instead of ~20,000)
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/09-filtered-include/Fixed.cs and write the filtered Include (see README, 'Your turn').");
+        var customers = context.Customers
+            .AsNoTracking()
+            .OrderBy(c => c.Email)
+            .Take(1000)
+            .Include(c =>
+                c.Orders.OrderByDescending(o => o.OrderDate)
+                .ThenByDescending(o => o.OrderNumber)
+                .Take(3)
+            )
+
+            .ToListAsync();
+
+        return Naive.Describe(await customers);
     }
 }

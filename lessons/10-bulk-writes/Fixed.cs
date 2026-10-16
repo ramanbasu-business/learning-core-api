@@ -7,7 +7,7 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDbContext();
+        await using var context = ctx.NewDbContext();
 
         // ----------------------------------------------------------------------------------
         // YOUR TURN
@@ -25,6 +25,10 @@ public static class Fixed
         // from (1 select + one UPDATE per row) to a single command.
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/10-bulk-writes/Fixed.cs (see README, 'Your turn').");
+        var affected = await context.Orders
+            .Where(o => o.Status == "Pending" && o.OrderDate < Naive.Cutoff)
+            .ExecuteUpdateAsync(o => o.SetProperty(p => p.Status, "Cancelled"));
+
+        return Naive.Describe(affected);
     }
 }
