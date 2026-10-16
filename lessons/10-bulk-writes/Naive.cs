@@ -9,10 +9,10 @@ public static class Naive
 
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var db = ctx.NewDbContext();
+        await using var context = ctx.NewDbContext();
 
         // Step 1: load every matching order into memory (tracked!)
-        var orders = await db.Orders
+        var orders = await context.Orders
             .Where(o => o.Status == "Pending" && o.OrderDate < Cutoff)
             .ToListAsync();
 
@@ -21,7 +21,7 @@ public static class Naive
             order.Status = "Cancelled";
 
         // Step 3: SaveChanges sends one UPDATE statement per changed row
-        await db.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return Describe(orders.Count);
     }
