@@ -140,7 +140,7 @@ Update this table as work happens. "Owner verified" means the owner ran it and/o
 | 08 | compiled-queries | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 | 09 | filtered-include | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 | 10 | bulk-writes | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
-| 11 | optimistic-concurrency | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
+| 11 | optimistic-concurrency | done | done, reviewed | xmin mapping verified working; 5 -> 7 queries (failed UPDATE + reload SELECT + retry UPDATE); retry must re-apply `+= 10` on reloaded value; both writers use tracked SaveChanges (ExecuteUpdate bypasses the check). Timing not meaningful (MutatesData, no warm-up) |
 | 12 | transactional-outbox | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 | 13 | soft-delete | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |
 | 14 | dbcontext-pooling | written, Fixed.cs pending (owner) | uncompiled | owner builds, writes Fixed.cs, pastes for review |

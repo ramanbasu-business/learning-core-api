@@ -7,8 +7,8 @@ public static class Fixed
 {
     public static async Task<LessonOutcome> RunAsync(LessonContext ctx)
     {
-        await using var dbA = ctx.NewDbContext();
-        await using var dbB = ctx.NewDbContext();
+        await using var contextA = ctx.NewDbContext();
+        await using var contextB = ctx.NewDbContext();
 
         // ----------------------------------------------------------------------------------
         // YOUR TURN
@@ -30,6 +30,44 @@ public static class Fixed
         // When it works: final = start + 20, conflicts caught: 1, and the runner shows "OK".
         // ----------------------------------------------------------------------------------
 
-        throw new NotImplementedException("TODO - open lessons/11-optimistic-concurrency/Fixed.cs (see README, 'Your turn').");
+        // Both users open the product page and see the same price.
+        var a = await contextA.Products.FirstAsync(p => p.Sku == Naive.Sku);
+        var b = await contextB.Products.FirstAsync(p => p.Sku == Naive.Sku);
+
+        var start = a.UnitPrice;
+
+        // A saves first through the change tracker, so its UPDATE is also guarded by "AND xmin = @version".
+        a.UnitPrice += 10m;
+        await contextA.SaveChangesAsync();
+
+        int conflicts = 0;
+        try
+        {
+            // B still holds the old xmin, so this UPDATE matches 0 rows and EF throws.
+            b.UnitPrice += 10m;
+            await contextB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            conflicts++;
+
+            // Reload the entity from the database to get the latest values.
+            // The point of reloading is to base your change on the latest data.
+            await ex.Entries.Single().ReloadAsync();
+
+            // Re-apply the change and save again.
+            b.UnitPrice += 10m;
+            await contextB.SaveChangesAsync();
+        }
+
+        // Check the final price. Both increases survived: start + 20.
+        await using var checkDbContext = ctx.NewDbContext();
+        var final = await checkDbContext.Products
+            .AsNoTracking()
+            .Where(p => p.Sku == Naive.Sku)
+            .Select(p => p.UnitPrice).FirstAsync();
+
+        return Naive.Describe(start, final, conflicts);
+
     }
 }
